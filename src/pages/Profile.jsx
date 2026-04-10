@@ -34,15 +34,13 @@ export default function Profile({ setIsLoggedIn }) {
         minHeight: "100vh",
         paddingTop: "120px",
         backgroundImage: `
-            linear-gradient(135deg, rgba(5,7,15,0.85), rgba(11,15,42,0.95)),
-            url("https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop")
-        `,
+        linear-gradient(135deg, rgba(5,15,10,0.92), rgba(10,25,15,0.88)),
+        url("https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop")
+    `,
         backgroundSize: "cover",
         backgroundPosition: "center",
         fontFamily: "Arial, sans-serif",
         color: "white",
-        position: "relative",
-        overflow: "hidden"
     };
 
     const cardStyle = {
@@ -50,38 +48,51 @@ export default function Profile({ setIsLoggedIn }) {
         margin: "50px auto",
         padding: "30px 40px",
         borderRadius: "16px",
-        background: "rgba(20, 25, 60, 0.85)",
-        boxShadow: "0 0 25px rgba(0,0,0,0.6)",
-        backdropFilter: "blur(10px)"
+        background: "rgba(10, 20, 15, 0.65)",
+        border: "1px solid rgba(110,220,130,0.15)",
+        boxShadow: "0 10px 40px rgba(0,0,0,0.6)",
+        backdropFilter: "blur(14px)"
     };
 
     const titleStyle = {
-        color: "#2ac9fa",
+        color: "#6EDC82",
         fontSize: "32px",
         marginBottom: "20px",
-        textAlign: "center"
+        textAlign: "center",
+        letterSpacing: "3px",
+        textTransform: "uppercase",
+        textShadow: "0 0 20px rgba(110,220,130,0.3)"
     };
 
-    const infoStyle = { marginBottom: "12px", fontSize: "16px", lineHeight: "1.5" };
+    const infoStyle = {
+        marginBottom: "12px",
+        fontSize: "15px",
+        lineHeight: "1.6",
+        color: "#E8F5EC",
+        letterSpacing: "1px"
+    };
 
     const teamStyle = {
-        marginBottom: "8px",
-        fontSize: "15px",
-        padding: "8px 12px",
-        borderRadius: "8px",
-        background: "rgba(30, 45, 90, 0.5)"
+        marginBottom: "10px",
+        fontSize: "14px",
+        padding: "10px 14px",
+        borderRadius: "10px",
+        background: "rgba(20, 35, 25, 0.6)",
+        border: "1px solid rgba(110,220,130,0.1)",
+        letterSpacing: "1px"
     };
-
     const btnStyle = {
-        padding: "12px 25px",
-        borderRadius: "12px",
+        padding: "12px 28px",
+        borderRadius: "10px",
         border: "none",
         cursor: "pointer",
-        fontWeight: "bold",
-        fontSize: "14px",
+        fontWeight: "700",
+        fontSize: "13px",
         marginTop: "20px",
-        marginRight: "15px",
-        transition: "0.2s"
+        marginRight: "12px",
+        letterSpacing: "2px",
+        textTransform: "uppercase",
+        transition: "all 0.2s"
     };
 
     const leaveBtn = { ...btnStyle, background: "#df0a45", color: "white" };

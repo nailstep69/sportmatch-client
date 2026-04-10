@@ -17,11 +17,13 @@ import OutgoingRequests from "./pages/OutgoingRequests";
 import CurrentTeam from "./pages/CurrentTeam";
 import TeamMatches from "./pages/TeamMatches";
 import MatchHistory from "./pages/MatchHistory";
-
+import MatchChat from "./pages/MatchChat";
 
 // ADM PAGES
 import AdminScheduledMatches from "./pages/AdminScheduledMatches";
 import AdminReadyMatches from "./pages/AdminReadyMatches";
+import AddSport from "./pages/AddSport";
+
 
 export default function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -114,6 +116,12 @@ export default function App() {
                     element={isLoggedIn ? <TeamMatches /> : <Navigate to="/auth" />}
                 />
 
+                {/* Чат матча */}
+                <Route
+                    path="/match-chat/:matchId"
+                    element={isLoggedIn ? <MatchChat /> : <Navigate to="/auth" />}
+                />
+
 
                 <Route
                     path="/match-requests"
@@ -131,8 +139,7 @@ export default function App() {
                 />
 
 
-
-
+                //adm
 
                 <Route
                     path="/admin/scheduled"
@@ -142,6 +149,11 @@ export default function App() {
                 <Route
                     path="/admin/ready"
                     element={isLoggedIn ? <AdminReadyMatches /> : <Navigate to="/auth" />}
+                />
+
+                <Route
+                    path="/add-sport"
+                    element={isLoggedIn ? <AddSport/> : <Navigate to="/auth" />}
                 />
 
             </Routes>

@@ -1,4 +1,3 @@
-// src/pages/CurrentTeam.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyTeams } from "../api/teams";
@@ -23,86 +22,51 @@ export default function CurrentTeam() {
         loadTeams();
     }, []);
 
-    // === Стили как в прошлых файлах ===
-    const pageStyle = {
-        minHeight: "100vh",
-        paddingTop: "120px",
-        backgroundImage: `
-            linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.8)),
-            url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReqWtEsPSe2j4AbDsNdtOmYKaoSx4f8Q9JiA&s")
-        `,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: "fixed",
-        color: "white",
-        fontFamily: "Arial"
-    };
-
-    const containerStyle = {
-        maxWidth: "900px",
-        margin: "0 auto"
-    };
-
-    const backBtnStyle = {
-        padding: "8px 12px",
-        borderRadius: "8px",
-        border: "none",
-        cursor: "pointer",
-        fontWeight: "bold",
-        fontSize: "14px",
-        marginBottom: "20px",
-        background: "linear-gradient(135deg, #4caf50, #2e7d32)",
-        color: "#fff"
-    };
-
-    const cardStyle = {
-        padding: "15px",
-        marginBottom: "10px",
-        borderRadius: "10px",
-        background: "rgba(255,255,255,0.08)",
-        backdropFilter: "blur(6px)",
-        border: "1px solid rgba(255,255,255,0.2)",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-    };
-
-    const matchBtnStyle = {
-        padding: "8px 12px",
-        borderRadius: "8px",
-        border: "none",
-        background: "linear-gradient(135deg, #ff9800, #e65100)",
-        color: "#fff",
-        fontWeight: "bold",
-        cursor: "pointer"
-    };
-
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p style={{ color: "red" }}>{error}</p>;
-    if (teams.length === 0) return (
-        <div style={pageStyle}>
-            <div style={containerStyle}>
-                <button style={backBtnStyle} onClick={() => navigate(-1)}>← Back</button>
-                <p>No teams found</p>
+    if (loading) return <p style={loadingStyle}>Loading...</p>;
+    if (error) return <p style={errorStyle}>{error}</p>;
+    if (teams.length === 0)
+        return (
+            <div style={pageStyle}>
+                <div style={containerStyle}>
+                    <button style={backBtnStyle} onClick={() => navigate(-1)}>
+                        ← Back
+                    </button>
+                    <p style={noDataStyle}>No teams found</p>
+                </div>
             </div>
-        </div>
-    );
+        );
 
     return (
         <div style={pageStyle}>
             <div style={containerStyle}>
-                <button style={backBtnStyle} onClick={() => navigate(-1)}>← Back</button>
-                <h2>My Current Teams</h2>
+                <button
+                    style={backBtnStyle}
+                    onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-2px)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
+                    onClick={() => navigate(-1)}
+                >
+                    ← Back
+                </button>
 
-                {teams.map(t => (
+                <h2 style={titleStyle}>My Current Teams</h2>
+
+                {teams.map((t) => (
                     <div key={t.id} style={cardStyle}>
                         <div>
-                            <p><b>Name:</b> {t.name}</p>
-                            <p><b>Sport:</b> {t.sport}</p>
-                            <p><b>Rating:</b> {t.rating}</p>
+                            <p>
+                                <b>Name:</b> {t.name}
+                            </p>
+                            <p>
+                                <b>Sport:</b> {t.sport}
+                            </p>
+                            <p>
+                                <b>Rating:</b> {t.rating}
+                            </p>
                         </div>
                         <button
                             style={matchBtnStyle}
+                            onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-2px)")}
+                            onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
                             onClick={() => navigate(`/team/${t.id}/matches`)}
                         >
                             Planned Matches
@@ -113,3 +77,90 @@ export default function CurrentTeam() {
         </div>
     );
 }
+
+/* ── Styles ── */
+
+const pageStyle = {
+    minHeight: "100vh",
+    paddingTop: "120px",
+    backgroundImage: `
+        linear-gradient(135deg, rgba(0,0,0,0.75), rgba(10,30,10,0.85)),
+        url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReqWtEsPSe2j4AbDsNdtOmYKaoSx4f8Q9JiA&s")
+    `,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundAttachment: "fixed",
+    fontFamily: "Arial, sans-serif",
+    color: "white"
+};
+
+const containerStyle = {
+    maxWidth: "900px",
+    margin: "0 auto",
+    padding: "0 20px 40px"
+};
+
+const titleStyle = {
+    fontSize: "28px",
+    fontWeight: "900",
+    letterSpacing: "3px",
+    marginBottom: "24px",
+    color: "white"
+};
+
+const backBtnStyle = {
+    padding: "10px 18px",
+    borderRadius: "8px",
+    border: "none",
+    background: "linear-gradient(135deg, #4caf50, #2e7d32)",
+    color: "#fff",
+    fontWeight: "700",
+    cursor: "pointer",
+    marginBottom: "20px",
+    transition: "all 0.2s ease"
+};
+
+const cardStyle = {
+    padding: "16px",
+    marginBottom: "14px",
+    borderRadius: "12px",
+    background: "rgba(255,255,255,0.08)",
+    backdropFilter: "blur(6px)",
+    border: "1px solid rgba(255,255,255,0.2)",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    transition: "all 0.2s ease"
+};
+
+const matchBtnStyle = {
+    padding: "10px 16px",
+    borderRadius: "8px",
+    border: "none",
+    background: "linear-gradient(135deg, #ff9800, #e65100)",
+    color: "#fff",
+    fontWeight: "700",
+    cursor: "pointer",
+    transition: "all 0.2s ease"
+};
+
+const loadingStyle = {
+    textAlign: "center",
+    paddingTop: "60px",
+    color: "#4caf50",
+    fontWeight: "700"
+};
+
+const errorStyle = {
+    textAlign: "center",
+    paddingTop: "60px",
+    color: "#ff4444",
+    fontWeight: "700"
+};
+
+const noDataStyle = {
+    textAlign: "center",
+    paddingTop: "40px",
+    color: "rgba(255,255,255,0.5)",
+    letterSpacing: "1px"
+};

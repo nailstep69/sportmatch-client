@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { refreshToken } from "../api/auth";
+import { refreshTokenRequest } from "../api/auth";
 
 export default function ProtectedRoute({ children }) {
-    const [isAuth, setIsAuth] = useState(null); // null = проверка, true/false = результат
+    const [isAuth, setIsAuth] = useState(null);
 
     useEffect(() => {
         const checkToken = async () => {
@@ -17,7 +17,7 @@ export default function ProtectedRoute({ children }) {
 
             if (rToken) {
                 try {
-                    const data = await refreshToken(rToken);
+                    const data = await refreshTokenRequest(rToken);
                     localStorage.setItem("accessToken", data.accessToken);
                     setIsAuth(true);
                     return;
@@ -30,10 +30,10 @@ export default function ProtectedRoute({ children }) {
             setIsAuth(false);
         };
 
-        checkToken();
+        void checkToken();
     }, []);
 
-    if (isAuth === null) return null; // пока проверяем токен
+    if (isAuth === null) return null;
     if (!isAuth) return <Navigate to="/login" />;
 
     return children;

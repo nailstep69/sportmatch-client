@@ -14,19 +14,10 @@ export default function TeamMatches() {
         async function loadMatches() {
             try {
                 const res = await authFetch(`/match/${teamId}/matches`);
-                if (!res.ok) {
-                    const text = await res.text();
-                    throw new Error(text || "Ошибка при загрузке матчей");
-                }
-
+                if (!res.ok) throw new Error(await res.text());
                 const data = await res.json();
-                console.log("Fetched matches:", data); // <-- лог данных
-
-                // Если сервер отдаёт { matches: [...] }
-                if (data.matches) setMatches(data.matches);
-                else setMatches(data);
+                setMatches(data.matches || data);
             } catch (err) {
-                console.error("Error loading matches:", err);
                 setError(err.message);
             } finally {
                 setLoading(false);
@@ -35,83 +26,38 @@ export default function TeamMatches() {
         loadMatches();
     }, [teamId]);
 
-    const showToast = (message) => {
-        setToast(message);
+    const showToast = (msg) => {
+        setToast(msg);
         setTimeout(() => setToast(""), 3000);
     };
 
     const handleCancelMatch = async (matchId) => {
         try {
             const res = await authFetch(`/match/cancel-match/${matchId}`, { method: "POST" });
-
-            const contentType = res.headers.get("content-type");
-            let data;
-            if (contentType && contentType.includes("application/json")) {
-                data = await res.json();
-            } else {
-                data = { message: await res.text() };
-            }
-
-            if (!res.ok) throw new Error(data.message || "Ошибка при отмене матча");
-
+            const data = res.headers.get("content-type")?.includes("json") ? await res.json() : { message: await res.text() };
+            if (!res.ok) throw new Error(data.message || "Ошибка");
             showToast(data.message || "Матч отменён");
-            setMatches((prev) => prev.filter((m) => m.matchId !== matchId));
+            setMatches(prev => prev.filter(m => m.matchId !== matchId));
         } catch (err) {
-            showToast(err.message || "Не удалось отменить матч");
+            showToast(err.message);
         }
     };
 
-    // === Стили ===
-    const pageStyle = {
-        minHeight: "100vh",
-        paddingTop: "120px",
-        backgroundImage: `
-            linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.8)),
-            url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReqWtEsPSe2j4AbDsNdtOmYKaoSx4f8Q9JiA&s")
-        `,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: "fixed",
-        color: "white",
-        fontFamily: "Arial"
-    };
-
-    const containerStyle = { maxWidth: "900px", margin: "0 auto" };
-    const backBtnStyle = {
-        padding: "8px 12px", borderRadius: "8px", border: "none",
-        cursor: "pointer", fontWeight: "bold", fontSize: "14px",
-        marginBottom: "20px",
-        background: "linear-gradient(135deg, #4caf50, #2e7d32)",
-        color: "#fff"
-    };
-    const cancelBtnStyle = {
-        padding: "8px 12px", borderRadius: "8px", border: "none",
-        cursor: "pointer", fontWeight: "bold", fontSize: "14px",
-        background: "linear-gradient(135deg, #f44336, #b71c1c)",
-        color: "#fff"
-    };
-    const tableStyle = {
-        width: "100%", borderCollapse: "collapse",
-        background: "rgba(255,255,255,0.08)",
-        backdropFilter: "blur(6px)", borderRadius: "10px", overflow: "hidden"
-    };
-    const thStyle = { padding: "10px", borderBottom: "1px solid #eee", textAlign: "left" };
-    const tdStyle = { padding: "10px", borderBottom: "1px solid #eee", textAlign: "left" };
-    const centerTdStyle = { ...tdStyle, textAlign: "center" };
-    const toastStyle = {
-        position: "fixed", bottom: "20px", right: "20px",
-        backgroundColor: "#333", color: "#fff",
-        padding: "10px 20px", borderRadius: "8px",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.3)"
-    };
-
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p style={{ color: "red" }}>{error}</p>;
+    if (loading) return (
+        <div style={pageStyle}>
+            <p style={{ textAlign: "center", paddingTop: "200px", color: "#4caf50", letterSpacing: "3px", fontSize: "14px" }}>LOADING...</p>
+        </div>
+    );
+    if (error) return (
+        <div style={pageStyle}>
+            <p style={{ color: "#ff4444", textAlign: "center", paddingTop: "200px", letterSpacing: "1px" }}>{error}</p>
+        </div>
+    );
     if (matches.length === 0) return (
         <div style={pageStyle}>
             <div style={containerStyle}>
                 <button style={backBtnStyle} onClick={() => navigate(-1)}>← Back</button>
-                <p>No matches found</p>
+                <p style={{ color: "rgba(255,255,255,0.4)", letterSpacing: "2px", fontSize: "13px" }}>NO MATCHES FOUND</p>
             </div>
         </div>
     );
@@ -120,43 +66,184 @@ export default function TeamMatches() {
         <div style={pageStyle}>
             <div style={containerStyle}>
                 <button style={backBtnStyle} onClick={() => navigate(-1)}>← Back</button>
-                <h2>Planned Matches</h2>
 
-                <table style={tableStyle}>
-                    <thead>
-                    <tr style={{ background: "rgba(255,255,255,0.15)" }}>
-                        <th style={thStyle}>Team A</th>
-                        <th style={thStyle}>Team B</th>
-                        <th style={thStyle}>Status</th>
-                        <th style={thStyle}>Date</th>
-                        <th style={thStyle}>Location</th>
-                        <th style={thStyle}>Score</th>
-                        <th style={thStyle}>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {matches.map(m => (
-                        <tr key={m.matchId}>
-                            <td style={tdStyle}>{m.teamA}</td>
-                            <td style={tdStyle}>{m.teamB}</td>
-                            <td style={centerTdStyle}>{m.status}</td>
-                            <td style={tdStyle}>{m.date ?? "in progress"}</td>
-                            <td style={tdStyle}>{m.location ?? "in progress"}</td>
-                            <td style={centerTdStyle}>
-                                {m.scoreA !== null && m.scoreB !== null ? `${m.scoreA} - ${m.scoreB}` : "in progress"}
-                            </td>
-                            <td style={centerTdStyle}>
-                                <button style={cancelBtnStyle} onClick={() => handleCancelMatch(m.matchId)}>
-                                    Cancel Match
-                                </button>
-                            </td>
+                <h2 style={titleStyle}>
+                    PLANNED <span style={{ color: "#4caf50" }}>MATCHES</span>
+                </h2>
+
+                <div style={tableWrapper}>
+                    <table style={tableStyle}>
+                        <thead>
+                        <tr style={{ background: "rgba(76,175,80,0.08)" }}>
+                            <th style={thStyle}>TEAM A</th>
+                            <th style={thStyle}>TEAM B</th>
+                            <th style={thStyle}>STATUS</th>
+                            <th style={thStyle}>DATE</th>
+                            <th style={thStyle}>LOCATION</th>
+                            <th style={{ ...thStyle, textAlign: "center" }}>SCORE</th>
+                            <th style={{ ...thStyle, textAlign: "center" }}>ACTIONS</th>
                         </tr>
-                    ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {matches.map((m, i) => (
+                            <tr key={m.matchId} style={{ background: i % 2 === 0 ? "rgba(0,0,0,0.2)" : "transparent" }}>
+                                <td style={tdStyle}>{m.teamA}</td>
+                                <td style={tdStyle}>{m.teamB}</td>
+                                <td style={tdStyle}>
+                                    <span style={statusBadgeStyle}>{m.status}</span>
+                                </td>
+                                <td style={tdStyle}>{m.date ?? "—"}</td>
+                                <td style={tdStyle}>{m.location ?? "—"}</td>
+                                <td style={{ ...tdStyle, textAlign: "center", color: "#4caf50", fontWeight: "700", letterSpacing: "2px" }}>
+                                    {m.scoreA !== null && m.scoreB !== null ? `${m.scoreA} — ${m.scoreB}` : "—"}
+                                </td>
+                                <td style={{ ...tdStyle, textAlign: "center" }}>
+                                    <button style={cancelBtnStyle} onClick={() => handleCancelMatch(m.matchId)}>Cancel</button>
+                                    <button style={chatBtnStyle} onClick={() => navigate(`/match-chat/${m.matchId}`)}>Chat</button>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
 
                 {toast && <div style={toastStyle}>{toast}</div>}
             </div>
         </div>
     );
 }
+
+/* ── Styles ── */
+
+const pageStyle = {
+    minHeight: "100vh",
+    paddingTop: "120px",
+    backgroundImage: `
+        linear-gradient(135deg, rgba(0,0,0,0.75), rgba(10,30,10,0.85)),
+        url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReqWtEsPSe2j4AbDsNdtOmYKaoSx4f8Q9JiA&s")
+    `,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundAttachment: "fixed",
+    fontFamily: "Arial, sans-serif",
+    color: "white"
+};
+
+const containerStyle = {
+    maxWidth: "1000px",
+    margin: "0 auto",
+    padding: "0 20px 60px"
+};
+
+const titleStyle = {
+    fontSize: "28px",
+    fontWeight: "900",
+    letterSpacing: "4px",
+    textTransform: "uppercase",
+    marginBottom: "24px",
+    marginTop: "4px",
+    color: "white"
+};
+
+const backBtnStyle = {
+    padding: "10px 20px",
+    borderRadius: "8px",
+    border: "1px solid rgba(76,175,80,0.45)",
+    background: "transparent",
+    color: "#4caf50",
+    fontWeight: "700",
+    fontSize: "12px",
+    letterSpacing: "2px",
+    textTransform: "uppercase",
+    cursor: "pointer",
+    marginBottom: "24px"
+};
+
+const tableWrapper = {
+    borderRadius: "12px",
+    overflow: "hidden",
+    border: "1px solid rgba(76,175,80,0.2)",
+    boxShadow: "0 8px 24px rgba(0,0,0,0.35)"
+};
+
+const tableStyle = {
+    width: "100%",
+    borderCollapse: "collapse",
+    background: "rgba(0,0,0,0.45)",
+    backdropFilter: "blur(10px)"
+};
+
+const thStyle = {
+    padding: "13px 14px",
+    borderBottom: "1px solid rgba(76,175,80,0.2)",
+    textAlign: "left",
+    fontSize: "11px",
+    fontWeight: "700",
+    letterSpacing: "2px",
+    color: "rgba(255,255,255,0.45)",
+    textTransform: "uppercase"
+};
+
+const tdStyle = {
+    padding: "13px 14px",
+    borderBottom: "1px solid rgba(255,255,255,0.05)",
+    fontSize: "13px",
+    color: "rgba(255,255,255,0.85)",
+    letterSpacing: "0.5px"
+};
+
+const statusBadgeStyle = {
+    padding: "3px 10px",
+    borderRadius: "20px",
+    background: "rgba(76,175,80,0.15)",
+    border: "1px solid rgba(76,175,80,0.3)",
+    color: "#4caf50",
+    fontSize: "11px",
+    fontWeight: "700",
+    letterSpacing: "1px",
+    textTransform: "uppercase"
+};
+
+const cancelBtnStyle = {
+    padding: "7px 14px",
+    borderRadius: "7px",
+    border: "1px solid rgba(244,67,54,0.4)",
+    background: "transparent",
+    color: "rgba(244,67,54,0.8)",
+    fontWeight: "700",
+    fontSize: "11px",
+    letterSpacing: "1px",
+    textTransform: "uppercase",
+    cursor: "pointer",
+    marginRight: "6px"
+};
+
+const chatBtnStyle = {
+    padding: "7px 14px",
+    borderRadius: "7px",
+    border: "none",
+    background: "#4caf50",
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: "11px",
+    letterSpacing: "1px",
+    textTransform: "uppercase",
+    cursor: "pointer",
+    boxShadow: "0 3px 10px rgba(76,175,80,0.3)"
+};
+
+const toastStyle = {
+    position: "fixed",
+    bottom: "24px",
+    right: "24px",
+    background: "rgba(0,0,0,0.85)",
+    border: "1px solid rgba(76,175,80,0.35)",
+    color: "#4caf50",
+    padding: "12px 22px",
+    borderRadius: "10px",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+    zIndex: 1000,
+    letterSpacing: "1px",
+    fontSize: "13px",
+    fontWeight: "600"
+};

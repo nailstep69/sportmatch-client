@@ -7,5 +7,5 @@ export async function getProfile() {
         throw new Error("Ошибка при получении профиля");
     }
 
-    return res.json(); // { username, email, age, teams: [...] }
+    return res.json();
 }

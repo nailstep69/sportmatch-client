@@ -1,4 +1,3 @@
-// src/pages/AuthPage.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { login, register } from "../api/auth";
